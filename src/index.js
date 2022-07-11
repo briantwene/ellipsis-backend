@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const port = process.env.PORT || 3000;
+const bodyParser = require("body-parser");
 const conversations = require("./conversations/router");
 const messages = require("./messages/router");
 const { socket } = require("./socket");
@@ -14,6 +15,8 @@ app.get("/", (req, res) => {
   res.send("it work");
 });
 
+app.use(bodyParser.json());
+app.use(express.json({ extended: true }));
 app.use("/conversations", conversations);
 app.use("/messages", messages);
 app.use("/users", users);

@@ -13,12 +13,11 @@ datasource db {
 model User {
   id          Int           @id @default(autoincrement())
   userId      String        @unique
-  firstName   String
-  lastName    String
-  userName    String
+  userName    String        @unique
   email       String        @unique
   password    String
-  GroupMember GroupMember[]
+  GroupMember GroupMember[] @relation("groupMember")
+  user_name   GroupMember?  @relation("username")
   message     message[]
 
   @@map(name: "user")
@@ -31,11 +30,14 @@ model Conversation {
   type             String
 
   @@map(name: "conversation")
+  message message[]
 }
 
 model GroupMember {
-  user            User         @relation(fields: [userId], references: [userId])
+  user            User         @relation("groupMember", fields: [userId], references: [userId])
   userId          String       @id
+  username        String       @unique
+  userName        User         @relation("username", fields: [username], references: [userName])
   conversation    Conversation @relation(fields: [conversationId], references: [conversationId])
   conversationId  Int
   joined_datetime DateTime
@@ -45,10 +47,12 @@ model GroupMember {
 }
 
 model message {
-  id              Int      @id @default(autoincrement())
+  id              Int          @id @default(autoincrement())
   from            String
-  sender          User     @relation(fields: [from], references: [userId])
-  message_text    Json
-  sent_datetime   DateTime
+  sender          User         @relation(fields: [from], references: [userId])
+  username        String
+  message_text    String
+  datetime   DateTime
   conversation_id Int
+  conversationId  Conversation @relation(fields: [conversation_id], references: [conversationId])
 }

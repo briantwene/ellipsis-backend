@@ -4,8 +4,9 @@ module.exports.socket = (io) => {
     console.log("user has connected to the socket server");
 
     //for when the user logs in
-    socket.on("login", ({ ...data }) => {
-      onlineUsers[data.userId] = socket.id;
+    socket.on("login", (data) => {
+      console.log("data", data);
+      onlineUsers[data] = socket.id;
       console.log(onlineUsers);
     });
 
@@ -13,7 +14,7 @@ module.exports.socket = (io) => {
     socket.on("send", ({ ...data }) => {
       console.log(data);
       if (onlineUsers.hasOwnProperty(data.to)) {
-        socket.to(onlineUsers[data.to]).emit("newMessage", data.message);
+        socket.to(onlineUsers[data.to]).emit("newMessage", data);
         //console.log(data.to, onlineUsers);
       } else {
         console.log("user not online");

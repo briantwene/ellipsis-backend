@@ -3,18 +3,19 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 module.exports.addMessage = async (req, res) => {
-  const { userId, time, conversationId, message } = req.query;
-
-  const deletedMessage = await prisma.Message.create({
+  const { userId, datetime, conversationId, message_text, username } = req.body;
+  console.log(username);
+  const createdMessage = await prisma.message.create({
     data: {
       from: userId,
-      sent_datetime: time,
-      conversationId,
-      message_text: message
+      datetime: datetime,
+      conversation_id: conversationId,
+      username: username,
+      message_text: message_text
     }
   });
 
-  if (!deletedMessage) {
+  if (!createdMessage) {
     res.status(400).json({
       error: "an error occured when message was trying to be deleted"
     });
