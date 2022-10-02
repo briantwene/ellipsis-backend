@@ -11,7 +11,7 @@ module.exports.socket = (io) => {
     });
 
     //for one-to-one messages
-    socket.on("send", ({ ...data }) => {
+    socket.on("send", (data) => {
       console.log(data);
       if (onlineUsers.hasOwnProperty(data.to)) {
         socket.to(onlineUsers[data.to]).emit("newMessage", data);
@@ -22,11 +22,12 @@ module.exports.socket = (io) => {
     });
 
     //for group messages
-    socket.on("send-group", ({ ...data }) => {
-      console.log(data);
-      data.members.forEach((member) => {
-        if (onlineUsers.hasOwnProperty(member)) {
-          socket.to(onlineUsers[member]).emit("newGroupMessage", data.message);
+    socket.on("send-group", ({ members, messageObject }) => {
+      console.log("members and message", members, messageObject);
+      console.log("this is");
+      members.forEach(({ user_id }) => {
+        if (onlineUsers.hasOwnProperty(user_id)) {
+          socket.to(onlineUsers[user_id]).emit("newMessage", messageObject);
           //console.log(data.to, onlineUsers);
         } else {
           //call the notification service

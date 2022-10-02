@@ -4,43 +4,42 @@ const { sign, verify } = require("jsonwebtoken");
 const createTokens = (user) => {
   //need to create one that expires
   const accessToken = sign(
-    { username: user.userName, id: user.userId },
+    { username: user.username, id: user.user_id },
     "secret-need to change for later"
   );
 
   return accessToken;
 };
 
+const getTokenFromHeader = (accessToken, type) => {
+  if (type === "WEB") {
+    return accessToken;
+  } else {
+    const bearer = accessToken.split(" ");
+    return bearer[1];
+  }
+};
+
 //token validation middleware function
 validateToken = (req, res, next) => {
   //get the token from the cookie store
-  let token;
-  const accessToken = req.headers.authorization;
+  const { device_type } = req.headers;
 
-  //if the token isnt there then send an error
-  if (accessToken) {
-    const bearer = accessToken.split(" ");
-    token = bearer[1];
-  } else {
-    return res.status(400).json({ error: "User not Authenticated" });
-  }
-
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.sendStatus(401);
   //try....
-  try {
-    //checking if the cookie is valid
 
-    const validToken = verify(token, "secret-need to change for later");
-    //and if it is
-
-    if (validToken) {
-      //then set the authenticated header to true
-      req.authenticated = true;
-      return next();
+  const validToken = verify(
+    token,
+    "secret-need to change for later",
+    (err, user) => {
+      if (err) return res.sendStatus(403);
+      // console.log("auth work");
+      req.user = user;
+      next();
     }
-    //if there are any errors then let the frontend know
-  } catch (err) {
-    return res.status(400).json({ error: err });
-  }
+  );
 };
 
 module.exports = { createTokens, validateToken };

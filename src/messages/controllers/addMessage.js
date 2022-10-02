@@ -1,25 +1,24 @@
 "use strict";
 const { PrismaClient } = require("@prisma/client");
+const db = require("../../db");
 const prisma = new PrismaClient();
 
 module.exports.addMessage = async (req, res) => {
-  const { userId, datetime, conversationId, message_text, username } = req.body;
-  console.log(username);
-  const createdMessage = await prisma.message.create({
-    data: {
-      from: userId,
-      datetime: datetime,
-      conversation_id: conversationId,
-      username: username,
-      message_text: message_text
-    }
-  });
+  const { sender, message_text, c_id, sent } = req.body;
+  console.log("req.bidy", req.body);
 
-  if (!createdMessage) {
+  const { rows } = await db.query(db.queryText.addMessage, [
+    sender,
+    message_text,
+    sent,
+    c_id
+  ]);
+
+  if (!rows) {
     res.status(400).json({
-      error: "an error occured when message was trying to be deleted"
+      error: "an error occured when message was being added"
     });
   } else {
-    res.status(200).json({ success: "message has been deleted" });
+    res.status(200).json({ success: "message has been added" });
   }
 };
